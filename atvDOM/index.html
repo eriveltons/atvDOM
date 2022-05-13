@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>atvDOM</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1> dados IBGE </h1>
+        <div class="sede-estados">
+            <h2> escolha o estado desejado </h2>
+            <select nome="estados" id="estados">
+            </select>
+        </div>
+        <div class="sede-cidades">
+            <h2> escolha a cidade desejada </h2>
+            <select class="hidden" nome="cidades" id="cidades"></select>
+        </div>
+    </div>
+
+
+
+    <script>
+        (() => {
+            const API_ESTADOS = 'https://servicodados.ibge.gov.br/api/v1/localidades/estados';
+            let seletorEstados = document.querySelector('#estados');
+            let seletorCidades = document.querySelector('#cidades');
+
+            fetch(API_ESTADOS)
+                .then(response => response.json())
+                .then(dados => {
+                    dados.forEach(estado => {
+                        seletorEstados.innerHTML += (
+                            `<option value="${estado.sigla}">${estado.nome}</option>`
+                        )
+                    });
+                })
+                .catch(error => console.log(error))
+
+            seletorEstados.addEventListener('change', () => {
+                seletorCidades.innerHTML = '';
+                let ufEstados = seletorEstados.value;
+                let API_CIDADES = `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${ufEstados}/municipios`;
+                fetch(API_CIDADES)
+                    .then(response => response.json())
+                    .then(dados => {
+                        dados.forEach(cidade => {
+                            seletorCidades.innerHTML += (
+                                `<option value="${cidade.id}">${cidade.nome}</option>`
+                            )
+                        })
+                    })
+                    .catch(error => console.log(error))
+                    .finally(seletorCidades.classList.remove('hidden'))
+            })
+
+        })();
+    </script>
+</body>
+
+</html>
